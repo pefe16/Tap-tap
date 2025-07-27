@@ -1,1 +1,43 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Tap Tap Missile</title></head><body><h1>Tap Tap Missile Oyunu</h1><script src='main.js'></script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tap Tap Missile</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #0f0;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    canvas {
+      background: #111;
+      display: block;
+      margin: auto;
+    }
+    #stats {
+      margin-top: 10px;
+    }
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #222;
+      color: #0f0;
+      border: none;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🎨 Tema</button>
+  <h1>🚀 Tap Tap Missile</h1>
+  <canvas id="gameCanvas" width="300" height="400"></canvas>
+  <div id="stats">Skor: <span id="score">0</span></div>
+  <script src="main.js"></script>
+</body>
+</html>
