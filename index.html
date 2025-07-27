@@ -1,77 +1,108 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🚀 Tap Tap Missile - PRO</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="favicon.ico" />
+  <meta charset="UTF-8">
+  <title>Asteroid Defense 🚀</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     body {
-      margin: 0;
       background: black;
       color: lime;
-      font-family: Arial, sans-serif;
+      font-family: 'Orbitron', sans-serif;
       text-align: center;
-      overflow: hidden;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 10px;
+    }
+    #hud {
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #hud span {
+      background: #111;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 1rem;
     }
     canvas {
-      background: url('space-bg.jpg') no-repeat center center;
-      background-size: cover;
+      border: 4px solid lime;
       display: block;
-      margin: auto;
-      border: 2px solid #0f0;
+      margin: 10px auto;
+      background: url('https://cdn.pixabay.com/photo/2013/07/18/10/56/space-164844_1280.jpg') no-repeat center center;
+      background-size: cover;
     }
-    #ui {
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.7);
-      position: relative;
-      z-index: 2;
-    }
-    button, select, input[type="range"] {
-      margin: 6px;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-      background: #222;
-      color: #0f0;
-    }
-    input[type="text"] {
+    input, select {
       padding: 6px;
-      width: 120px;
+      border-radius: 5px;
+      font-size: 1rem;
     }
-    #stats {
-      margin-top: 10px;
-      font-size: 18px;
+    .settings {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: lime;
+      color: black;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>🚀 Tap Tap Missile - PRO</h1>
+  <h1>🚀 Asteroid Defense</h1>
+  <input id="playerName" placeholder="Oyuncu Adı" />
 
-  <div id="ui">
-    <input type="text" id="playerName" placeholder="Oyuncu Adı" />
-    <select id="rocketType">
-      <option value="default">🚀 Klasik</option>
-      <option value="dual">💥 Çift Roket</option>
-      <option value="laser">🔫 Lazer</option>
-    </select>
-    <button onclick="toggleTheme()">🎨 Tema Değiştir</button><br>
-    <label>🎵 Müzik <input type="range" id="musicVolume" min="0" max="1" step="0.1" value="0.5"></label>
-    <label>💥 Efekt <input type="range" id="fxVolume" min="0" max="1" step="0.1" value="0.5"></label><br>
-    <button onclick="takeScreenshot()">📸 Ekran Görüntüsü</button>
-    <button onclick="shareScore()">📤 Skoru Paylaş</button>
-
-    <div id="stats">
-      Skor: <span id="score">0</span> |
-      Seviye: <span id="level">1</span> |
-      Yüksek Skor: <span id="hiscore">0</span>
-    </div>
+  <div id="hud">
+    <span>Skor: <span id="score">0</span></span>
+    <span>Seviye: <span id="level">1</span></span>
+    <span>Rekor: <span id="hiscore">0</span></span>
   </div>
 
-  <canvas id="gameCanvas" width="360" height="600"></canvas>
+  <canvas id="gameCanvas" width="360" height="480"></canvas>
+
+  <div class="settings">
+    <label>🚀 Roket: 
+      <select id="rocketType">
+        <option value="default">Tekli</option>
+        <option value="dual">Çiftli</option>
+      </select>
+    </label>
+    <label>🎵 Müzik: 
+      <input type="range" id="musicVolume" min="0" max="1" step="0.01" value="0.5" />
+    </label>
+    <label>🎧 Efekt: 
+      <input type="range" id="fxVolume" min="0" max="1" step="0.01" value="0.5" />
+    </label>
+  </div>
+
+  <div class="settings">
+    <button onclick="toggleTheme()">🌙 Tema</button>
+    <button onclick="takeScreenshot()">📸 Ekran Görüntüsü</button>
+    <button onclick="shareScore()">📤 Skoru Paylaş</button>
+  </div>
 
   <script src="main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').then(() => {
+        console.log("Service worker yüklendi ✅");
+      }).catch(err => {
+        console.error("Service worker hatası ❌", err);
+      });
+    }
+  </script>
 </body>
 </html>
