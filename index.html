@@ -15,6 +15,24 @@
       overflow: hidden;
       text-align: center;
     }
+
+    #space-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    #stars {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, #000010 0%, #000000 100%);
+      display: block;
+    }
+
     #ui {
       position: absolute;
       top: 10px;
@@ -23,15 +41,21 @@
       background: rgba(0,0,0,0.5);
       padding: 10px;
       border-radius: 8px;
+      z-index: 2;
     }
-    canvas {
+
+    canvas#gameCanvas {
       display: block;
       margin: 0 auto;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/0/06/NASA_Blue_Bubble_Nebula.jpg') no-repeat center center / cover;
+      background: transparent;
+      position: relative;
+      z-index: 1;
     }
+
     input, select {
       margin: 5px;
     }
+
     button {
       margin: 4px;
       padding: 5px 10px;
@@ -40,6 +64,7 @@
       border: 1px solid #0f0;
       cursor: pointer;
     }
+
     button:hover {
       background: #0f0;
       color: #000;
@@ -47,7 +72,12 @@
   </style>
 </head>
 <body>
+  <div id="space-bg">
+    <canvas id="stars"></canvas>
+  </div>
+
   <canvas id="gameCanvas" width="360" height="640"></canvas>
+
   <div id="ui">
     <div>🎮 Oyuncu: <input id="playerName" placeholder="Adınız" /></div>
     <div>🚀 Roket Tipi: 
@@ -64,6 +94,7 @@
     <button onclick="takeScreenshot()">📸 Ekran Al</button>
     <button onclick="shareScore()">📤 Skoru Paylaş</button>
   </div>
+
   <script src="main.js"></script>
 </body>
 </html>
