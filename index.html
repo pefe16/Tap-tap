@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tap Tap Missile</title>
+  <title>Tap Tap Missile - Asteroid Defense</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
@@ -11,33 +11,38 @@
       margin: 0;
       background: #000;
       color: #0f0;
-      font-family: sans-serif;
+      font-family: 'Orbitron', sans-serif;
       text-align: center;
+      overflow: hidden;
     }
-    canvas {
-      background: #111;
+    #gameCanvas {
       display: block;
       margin: auto;
+      background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=800&q=80') no-repeat center center;
+      background-size: cover;
+      border: 3px solid #0f0;
+      box-shadow: 0 0 40px #0ff7, 0 0 80px #fff3;
     }
-    #stats {
-      margin-top: 10px;
-    }
-    .theme-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #222;
-      color: #0f0;
-      border: none;
-      padding: 5px 10px;
-    }
+    #stats { margin: 16px; font-size: 22px; }
+    #playerName { margin: 12px; padding: 8px; border-radius: 5px; border: none; }
+    .btn { padding: 8px 18px; margin: 8px; border: none; background: #111; color: #0f0; border-radius: 7px; font-size: 18px; }
+    .btn:hover { background: #222; }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">🎨 Tema</button>
-  <h1>🚀 Tap Tap Missile</h1>
-  <canvas id="gameCanvas" width="300" height="400"></canvas>
-  <div id="stats">Skor: <span id="score">0</span></div>
+  <h1>🚀 Asteroid Defense</h1>
+  <input id="playerName" placeholder="Oyuncu Adı" maxlength="12">
+  <canvas id="gameCanvas" width="350" height="500"></canvas>
+  <div id="stats">
+    Skor: <span id="score">0</span> |
+    Level: <span id="level">1</span> |
+    En Yüksek: <span id="hiscore">0</span>
+  </div>
+  <button class="btn" onclick="restartGame()">Yeniden Başla</button>
+  <audio id="explode" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12a049f072.mp3"></audio>
+  <audio id="fire" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b6e2721.mp3"></audio>
+  <audio id="music" src="https://cdn.pixabay.com/audio/2022/12/19/audio_124b03d723.mp3" loop autoplay></audio>
   <script src="main.js"></script>
 </body>
 </html>
