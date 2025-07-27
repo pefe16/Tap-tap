@@ -1,136 +1,189 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let playerName = "";
+let width = window.innerWidth;
+let height = window.innerHeight;
+canvas.width = width;
+canvas.height = height;
+
 let score = 0;
-let gameRunning = false;
-let gamePaused = false;
+let isPaused = false;
+let gameStarted = false;
 
-let missiles = [];
-let asteroids = [];
+document.getElementById("score").textContent = score;
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+const rocketImg = new Image();
+rocketImg.src = "missile.png";
 
-// Başlatma
-window.startGame = function () {
-  playerName = document.getElementById("playerName").value || "Oyuncu";
+const meteorImg = new Image();
+meteorImg.src = "meteor.png";
+
+const powerupImg = new Image();
+powerupImg.src = "powerup.png";
+
+function startGame() {
   document.getElementById("startScreen").style.display = "none";
-  score = 0;
-  gameRunning = true;
-  gamePaused = false;
-  asteroids = [];
-  missiles = [];
-  spawnAsteroid();
-  gameLoop();
-};
+  gameStarted = true;
+}
 
-// Durdur / Devam
-window.togglePause = function () {
-  if (!gameRunning) return;
-  gamePaused = !gamePaused;
-  if (!gamePaused) {
-    gameLoop();
-  }
-};
+function togglePause() {
+  isPaused = !isPaused;
+  document.getElementById("pauseBtn").textContent = isPaused ? "▶️ Devam" : "⏸️ Durdur";
+}
 
-// Ana Menüye Dön
-window.backToMenu = function () {
-  gameRunning = false;
-  gamePaused = false;
-  missiles = [];
-  asteroids = [];
-  document.getElementById("startScreen").style.display = "block";
-};
-
-// Ayarları Aç / Kapat
-window.toggleSettings = function () {
+function toggleSettings() {
   const panel = document.getElementById("settingsPanel");
   panel.style.display = panel.style.display === "none" ? "block" : "none";
-};
-
-// Füze Fırlatma (sadece yukarıya düz)
-canvas.addEventListener("click", function (e) {
-  if (!gameRunning || gamePaused) return;
-  missiles.push({
-    x: e.clientX,
-    y: canvas.height - 20,
-    dy: -10
-  });
-});
-
-// Asteroid üret
-function spawnAsteroid() {
-  if (!gameRunning) return;
-  asteroids.push({
-    x: Math.random() * canvas.width,
-    y: -40,
-    dy: 2 + Math.random() * 2
-  });
-  setTimeout(spawnAsteroid, 1000);
 }
 
-// Oyun Döngüsü
+function returnToMenu() {
+  window.location.reload();
+}
+
+class Rocket {
+  constructor(x, y) {
+    this.x = x;
+    this.y = height - 60;
+    this.targetY = y;
+    this.speed = 10;
+    this.width = 16;
+    this.height = 40;
+  }
+
+  update() {
+    this.y -= this.speed;
+  }
+
+  draw() {
+    ctx.drawImage(rocketImg, this.x - this.width / 2, this.y, this.width, this.height);
+  }
+
+  isOutOfScreen() {
+    return this.y + this.height < 0;
+  }
+}
+
+class Meteor {
+  constructor() {
+    this.x = Math.random() * width;
+    this.y = -50;
+    this.speed = 2 + Math.random() * 3;
+    this.size = 40 + Math.random() * 20;
+  }
+
+  update() {
+    this.y += this.speed;
+  }
+
+  draw() {
+    ctx.drawImage(meteorImg, this.x, this.y, this.size, this.size);
+  }
+
+  isHit(rocket) {
+    return (
+      this.x < rocket.x &&
+      rocket.x < this.x + this.size &&
+      rocket.y < this.y + this.size &&
+      rocket.y > this.y
+    );
+  }
+}
+
+class PowerUp {
+  constructor() {
+    this.x = Math.random() * width;
+    this.y = -50;
+    this.speed = 3;
+    this.size = 30;
+  }
+
+  update() {
+    this.y += this.speed;
+  }
+
+  draw() {
+    ctx.drawImage(powerupImg, this.x, this.y, this.size, this.size);
+  }
+
+  isHit(rocket) {
+    return (
+      this.x < rocket.x &&
+      rocket.x < this.x + this.size &&
+      rocket.y < this.y + this.size &&
+      rocket.y > this.y
+    );
+  }
+}
+
+let rockets = [];
+let meteors = [];
+let powerups = [];
+
+canvas.addEventListener("click", (e) => {
+  if (!isPaused && gameStarted) {
+    const rocket = new Rocket(e.clientX, e.clientY);
+    rockets.push(rocket);
+  }
+});
+
+function spawnMeteor() {
+  if (!isPaused && gameStarted) {
+    meteors.push(new Meteor());
+  }
+}
+
+function spawnPowerUp() {
+  if (!isPaused && gameStarted) {
+    powerups.push(new PowerUp());
+  }
+}
+
+setInterval(spawnMeteor, 1000);
+setInterval(spawnPowerUp, 7000);
+
 function gameLoop() {
-  if (!gameRunning || gamePaused) return;
-  update();
-  draw();
+  ctx.clearRect(0, 0, width, height);
+
+  if (!isPaused && gameStarted) {
+    rockets.forEach((rocket, rIndex) => {
+      rocket.update();
+      rocket.draw();
+
+      meteors.forEach((meteor, mIndex) => {
+        if (meteor.isHit(rocket)) {
+          meteors.splice(mIndex, 1);
+          rockets.splice(rIndex, 1);
+          score++;
+          document.getElementById("score").textContent = score;
+        }
+      });
+
+      powerups.forEach((powerup, pIndex) => {
+        if (powerup.isHit(rocket)) {
+          powerups.splice(pIndex, 1);
+          rockets.splice(rIndex, 1);
+          score += 5;
+          document.getElementById("score").textContent = score;
+        }
+      });
+
+      if (rocket.isOutOfScreen()) {
+        rockets.splice(rIndex, 1);
+      }
+    });
+
+    meteors.forEach((meteor) => {
+      meteor.update();
+      meteor.draw();
+    });
+
+    powerups.forEach((powerup) => {
+      powerup.update();
+      powerup.draw();
+    });
+  }
+
   requestAnimationFrame(gameLoop);
 }
 
-// Güncelle
-function update() {
-  // Füze hareketi
-  missiles.forEach((m, i) => {
-    m.y += m.dy;
-    if (m.y < -20) missiles.splice(i, 1);
-  });
-
-  // Asteroid hareketi ve çarpışma kontrolü
-  asteroids.forEach((a, ai) => {
-    a.y += a.dy;
-    if (a.y > canvas.height) asteroids.splice(ai, 1);
-
-    missiles.forEach((m, mi) => {
-      if (Math.hypot(a.x - m.x, a.y - m.y) < 25) {
-        asteroids.splice(ai, 1);
-        missiles.splice(mi, 1);
-        score++;
-        updateScore();
-      }
-    });
-  });
-}
-
-// Skoru Güncelle
-function updateScore() {
-  document.getElementById("scoreDisplay").textContent = `⭐ Skor: ${score}`;
-}
-
-// Çizim
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Füze
-  ctx.fillStyle = "lime";
-  missiles.forEach(m => {
-    ctx.fillRect(m.x - 2, m.y, 4, 10);
-  });
-
-  // Asteroid
-  ctx.fillStyle = "red";
-  asteroids.forEach(a => {
-    ctx.beginPath();
-    ctx.arc(a.x, a.y, 20, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Oyuncu bilgisi
-  ctx.fillStyle = "lime";
-  ctx.font = "14px Arial";
-  ctx.fillText(`👤 ${playerName}`, 10, canvas.height - 10);
-}
+gameLoop();
