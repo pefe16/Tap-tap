@@ -1,48 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tap Tap Missile - Asteroid Defense</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <title>🚀 Tap Tap Missile - PRO</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="favicon.ico" />
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #0f0;
-      font-family: 'Orbitron', sans-serif;
+      background: black;
+      color: lime;
+      font-family: Arial, sans-serif;
       text-align: center;
       overflow: hidden;
     }
-    #gameCanvas {
+    canvas {
+      background: url('space-bg.jpg') no-repeat center center;
+      background-size: cover;
       display: block;
       margin: auto;
-      background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=800&q=80') no-repeat center center;
-      background-size: cover;
-      border: 3px solid #0f0;
-      box-shadow: 0 0 40px #0ff7, 0 0 80px #fff3;
+      border: 2px solid #0f0;
     }
-    #stats { margin: 16px; font-size: 22px; }
-    #playerName { margin: 12px; padding: 8px; border-radius: 5px; border: none; }
-    .btn { padding: 8px 18px; margin: 8px; border: none; background: #111; color: #0f0; border-radius: 7px; font-size: 18px; }
-    .btn:hover { background: #222; }
+    #ui {
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      position: relative;
+      z-index: 2;
+    }
+    button, select, input[type="range"] {
+      margin: 6px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      background: #222;
+      color: #0f0;
+    }
+    input[type="text"] {
+      padding: 6px;
+      width: 120px;
+    }
+    #stats {
+      margin-top: 10px;
+      font-size: 18px;
+    }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>🚀 Asteroid Defense</h1>
-  <input id="playerName" placeholder="Oyuncu Adı" maxlength="12">
-  <canvas id="gameCanvas" width="350" height="500"></canvas>
-  <div id="stats">
-    Skor: <span id="score">0</span> |
-    Level: <span id="level">1</span> |
-    En Yüksek: <span id="hiscore">0</span>
+  <h1>🚀 Tap Tap Missile - PRO</h1>
+
+  <div id="ui">
+    <input type="text" id="playerName" placeholder="Oyuncu Adı" />
+    <select id="rocketType">
+      <option value="default">🚀 Klasik</option>
+      <option value="dual">💥 Çift Roket</option>
+      <option value="laser">🔫 Lazer</option>
+    </select>
+    <button onclick="toggleTheme()">🎨 Tema Değiştir</button><br>
+    <label>🎵 Müzik <input type="range" id="musicVolume" min="0" max="1" step="0.1" value="0.5"></label>
+    <label>💥 Efekt <input type="range" id="fxVolume" min="0" max="1" step="0.1" value="0.5"></label><br>
+    <button onclick="takeScreenshot()">📸 Ekran Görüntüsü</button>
+    <button onclick="shareScore()">📤 Skoru Paylaş</button>
+
+    <div id="stats">
+      Skor: <span id="score">0</span> |
+      Seviye: <span id="level">1</span> |
+      Yüksek Skor: <span id="hiscore">0</span>
+    </div>
   </div>
-  <button class="btn" onclick="restartGame()">Yeniden Başla</button>
-  <audio id="explode" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12a049f072.mp3"></audio>
-  <audio id="fire" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b6e2721.mp3"></audio>
-  <audio id="music" src="https://cdn.pixabay.com/audio/2022/12/19/audio_124b03d723.mp3" loop autoplay></audio>
+
+  <canvas id="gameCanvas" width="360" height="600"></canvas>
+
   <script src="main.js"></script>
 </body>
 </html>
