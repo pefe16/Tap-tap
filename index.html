@@ -5,130 +5,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Asteroid Defense</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon-192.png" />
+  <link rel="icon" href="favicon.ico" />
   <style>
     body {
       margin: 0;
       overflow: hidden;
       background: black;
-      font-family: Arial, sans-serif;
       color: lime;
+      font-family: sans-serif;
+      user-select: none;
     }
-
-    canvas {
-      display: block;
-      background: url('space-bg.jpg') no-repeat center center;
-      background-size: cover;
-    }
-
-    #startScreen, #controlPanel, #pauseButton, #togglePanel {
+    #gameCanvas {
       position: absolute;
-      z-index: 1000;
-    }
-
-    #startScreen {
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: lime;
     }
-
-    #startScreen input, #startScreen select, #startScreen button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid lime;
-      background: black;
-      color: lime;
-    }
-
-    #controlPanel {
-      top: 60px;
-      left: 10px;
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 10px;
+    #startScreen, #settingsPanel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border: 2px solid lime;
       border-radius: 10px;
-      display: none;
+      text-align: center;
+      z-index: 10;
     }
-
-    #togglePanel {
+    #settingsPanel {
+      display: none;
+      top: auto;
+      bottom: 10px;
+      left: 10px;
+      transform: none;
+    }
+    .button {
+      margin: 5px;
+      padding: 8px 14px;
+      background: black;
+      border: 1px solid lime;
+      color: lime;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #stats {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 5;
+    }
+    #controls {
+      position: absolute;
       top: 10px;
       right: 10px;
-      padding: 5px 10px;
-      border: 1px solid lime;
-      background: black;
-      color: lime;
-      border-radius: 8px;
-    }
-
-    #pauseButton {
-      top: 10px;
-      left: 10px;
-      padding: 5px 10px;
-      border: 1px solid lime;
-      background: black;
-      color: lime;
-      border-radius: 8px;
-    }
-
-    .green-button {
-      background: black;
-      border: 1px solid lime;
-      color: lime;
-      padding: 5px 8px;
-      margin-top: 6px;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-
-    .green-button:hover {
-      background: lime;
-      color: black;
-    }
-
-    .slider {
-      width: 100%;
+      z-index: 5;
     }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Başlangıç ekranı -->
   <div id="startScreen">
-    <h1>🚀 Asteroid Defense</h1>
-    <input type="text" id="playerName" placeholder="Oyuncu Adı" />
-    <select id="rocketType">
-      <option value="basic">Klasik Roket</option>
-      <option value="laser">Lazer</option>
-      <option value="plasma">Plazma</option>
-    </select>
-    <button onclick="startGame()">🎮 Oyuna Başla</button>
+    <h2>🚀 Asteroid Defense</h2>
+    <label>🎮 Oyuncu: <input id="playerName" placeholder="İsminizi yazın" /></label>
+    <br /><br />
+    <button class="button" onclick="startGame()">Oyuna Başla</button>
   </div>
 
-  <!-- Oyun kontrol butonları -->
-  <button id="togglePanel">⚙️ Ayarları Aç/Kapat</button>
-  <button id="pauseButton">⏸ Durdur</button>
+  <div id="controls">
+    <button class="button" onclick="toggleSettings()">⚙️ Ayarları Aç/Kapat</button>
+  </div>
 
-  <!-- Ayar paneli -->
-  <div id="controlPanel">
-    <label>🎵 Müzik Sesi</label><br>
-    <input type="range" id="musicVolume" class="slider" min="0" max="1" step="0.01"><br>
+  <div id="settingsPanel">
+    <button class="button" onclick="togglePause()">⏸️ Durdur / Devam</button><br />
+    <button class="button" onclick="backToMenu()">🏠 Ana Menüye Dön</button>
+  </div>
 
-    <label>🔊 Efekt Sesi</label><br>
-    <input type="range" id="effectVolume" class="slider" min="0" max="1" step="0.01"><br>
-
-    <button class="green-button" onclick="changeTheme()">🌗 Tema Değiştir</button><br>
-    <button class="green-button" onclick="captureScreen()">📸 Ekran Al</button><br>
-    <button class="green-button" onclick="shareScore()">📩 Skoru Paylaş</button><br>
-    <button class="green-button" onclick="returnToMenu()">🔁 Ana Menüye Dön</button>
+  <div id="stats">
+    <div id="scoreDisplay">⭐ Skor: 0</div>
+    <div id="rocketType">🚀 Roket: basic</div>
   </div>
 
   <script src="main.js"></script>
