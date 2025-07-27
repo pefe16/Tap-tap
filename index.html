@@ -2,97 +2,122 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Asteroid Defense</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="icon-192.png" />
   <style>
     body {
       margin: 0;
-      background: black;
-      color: lime;
-      font-family: 'Arial', sans-serif;
       overflow: hidden;
-      text-align: center;
+      background: black;
+      font-family: Arial, sans-serif;
+      color: lime;
     }
 
-    #space-bg {
+    canvas {
+      display: block;
+      background: url('space-bg.jpg') no-repeat center center;
+      background-size: cover;
+    }
+
+    #startScreen, #controlPanel, #pauseButton, #togglePanel {
       position: absolute;
+      z-index: 1000;
+    }
+
+    #startScreen {
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -2;
-      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: lime;
     }
 
-    #stars {
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(ellipse at center, #000010 0%, #000000 100%);
-      display: block;
-    }
-
-    #ui {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.5);
+    #startScreen input, #startScreen select, #startScreen button {
+      margin: 10px;
       padding: 10px;
-      border-radius: 8px;
-      z-index: 2;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid lime;
+      background: black;
+      color: lime;
     }
 
-    canvas#gameCanvas {
-      display: block;
-      margin: 0 auto;
-      background: transparent;
-      position: relative;
-      z-index: 1;
+    #controlPanel {
+      top: 60px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
     }
 
-    input, select {
-      margin: 5px;
-    }
-
-    button {
-      margin: 4px;
+    #togglePanel {
+      top: 10px;
+      right: 10px;
       padding: 5px 10px;
-      background: #222;
-      color: #0f0;
-      border: 1px solid #0f0;
-      cursor: pointer;
+      border: 1px solid lime;
+      background: black;
+      color: lime;
+      border-radius: 8px;
     }
 
-    button:hover {
-      background: #0f0;
-      color: #000;
+    #pauseButton {
+      top: 10px;
+      left: 10px;
+      padding: 5px 10px;
+      border: 1px solid lime;
+      background: black;
+      color: lime;
+      border-radius: 8px;
+    }
+
+    .green-button:hover {
+      background: lime;
+      color: black;
+    }
+
+    .slider {
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div id="space-bg">
-    <canvas id="stars"></canvas>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Başlangıç ekranı -->
+  <div id="startScreen">
+    <h1>🚀 Asteroid Defense</h1>
+    <input type="text" id="playerName" placeholder="Oyuncu Adı" />
+    <select id="rocketType">
+      <option value="basic">Klasik Roket</option>
+      <option value="laser">Lazer</option>
+      <option value="plasma">Plazma</option>
+    </select>
+    <button onclick="startGame()">🎮 Oyuna Başla</button>
   </div>
 
-  <canvas id="gameCanvas" width="360" height="640"></canvas>
+  <!-- Oyun kontrol butonları -->
+  <button id="togglePanel">⚙️ Ayarları Aç/Kapat</button>
+  <button id="pauseButton">⏸ Durdur</button>
 
-  <div id="ui">
-    <div>🎮 Oyuncu: <input id="playerName" placeholder="Adınız" /></div>
-    <div>🚀 Roket Tipi: 
-      <select id="rocketType">
-        <option value="default">Tekli</option>
-        <option value="dual">Çiftli</option>
-        <option value="laser">Lazer</option>
-      </select>
-    </div>
-    <div>🎵 Müzik Sesi: <input id="musicVolume" type="range" min="0" max="1" step="0.01" value="0.4" /></div>
-    <div>🔊 Efekt Sesi: <input id="fxVolume" type="range" min="0" max="1" step="0.01" value="0.8" /></div>
-    <div>⭐ Skor: <span id="score">0</span> | 🚀 Seviye: <span id="level">1</span> | 🏆 Rekor: <span id="hiscore">0</span></div>
-    <button onclick="toggleTheme()">🌗 Tema Değiştir</button>
-    <button onclick="takeScreenshot()">📸 Ekran Al</button>
-    <button onclick="shareScore()">📤 Skoru Paylaş</button>
+  <!-- Ayar paneli -->
+  <div id="controlPanel">
+    <label>🎵 Müzik Sesi</label><br>
+    <input type="range" id="musicVolume" class="slider" min="0" max="1" step="0.01"><br>
+
+    <label>🔊 Efekt Sesi</label><br>
+    <input type="range" id="effectVolume" class="slider" min="0" max="1" step="0.01"><br>
+
+    <button class="green-button" onclick="changeTheme()">🌗 Tema Değiştir</button><br>
+    <button class="green-button" onclick="captureScreen()">📸 Ekran Al</button><br>
+    <button class="green-button" onclick="shareScore()">📩 Skoru Paylaş</button>
   </div>
 
   <script src="main.js"></script>
