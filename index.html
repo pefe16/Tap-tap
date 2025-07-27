@@ -7,84 +7,113 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="favicon.ico" />
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
+      background: black;
       font-family: Arial, sans-serif;
-      background: url('space-bg.jpg') no-repeat center center fixed;
+    }
+
+    canvas {
+      display: block;
+      background: url('space-bg.jpg') no-repeat center center;
       background-size: cover;
     }
-    #gameCanvas {
-      display: block;
-    }
+
     #ui {
       position: absolute;
       top: 10px;
       left: 10px;
       color: lime;
       font-weight: bold;
-      z-index: 2;
+      z-index: 10;
     }
-    #settingsBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 2;
-    }
+
     #settingsPanel {
       display: none;
       position: absolute;
-      top: 50px;
+      top: 60px;
       right: 10px;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid lime;
+      border-radius: 8px;
       padding: 10px;
-      border: 1px solid lime;
-      border-radius: 5px;
-      z-index: 3;
+      z-index: 20;
     }
-    button {
-      margin: 5px 0;
-      padding: 5px 10px;
-      background-color: black;
-      color: lime;
-      border: 1px solid lime;
+
+    #settingsPanel button {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px;
+      font-weight: bold;
+      background: lime;
+      color: black;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
     }
+
+    #settingsToggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: black;
+      border: 2px solid lime;
+      color: lime;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 8px;
+      z-index: 10;
+      cursor: pointer;
+    }
+
     #startScreen {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.9);
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: white;
+      z-index: 100;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      color: white;
-      z-index: 5;
+      justify-content: center;
     }
+
+    #startScreen button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      font-weight: bold;
+      background: lime;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
-  <div id="startScreen">
-    <h1>🚀 Asteroid Defense</h1>
-    <button onclick="startGame()">Oyuna Başla</button>
-  </div>
-
   <canvas id="gameCanvas"></canvas>
 
   <div id="ui">
-    <div>⭐ Skor: <span id="score">0</span></div>
-    <div>🚀 Roket: <span id="rocketType">Basic</span></div>
-    <button id="pauseBtn" onclick="togglePause()">⏸️ Durdur</button>
+    ⭐Skor: <span id="score">0</span><br />
+    🚀Roket: <span id="rocketType">Basic</span>
   </div>
 
-  <button id="settingsBtn" onclick="toggleSettings()">⚙️ Ayarları Aç/Kapat</button>
+  <div id="settingsToggle">⚙️ Ayarları Aç/Kapat</div>
 
   <div id="settingsPanel">
-    <button onclick="returnToMenu()">🔙 Ana Menüye Dön</button>
+    <button onclick="togglePause()">⏸️ Durdur / Başlat</button>
+    <button onclick="goToMainMenu()">🏠 Ana Menüye Dön</button>
+  </div>
+
+  <div id="startScreen">
+    <h1>🚀 Asteroid Defense 🚀</h1>
+    <button onclick="startGame()">Oyuna Başla</button>
   </div>
 
   <script src="main.js"></script>
