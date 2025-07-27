@@ -5,11 +5,11 @@ let asteroids = [], missiles = [];
 let score = 0, level = 1, hiscore = +localStorage.hiscore || 0;
 let playing = true;
 let theme = "dark";
-let rocketType = "default";
+let rocketType = localStorage.rocketType || "default";
 let slowMotion = false;
 let shieldActive = false;
 
-// UI elemanları
+// UI bağlantıları
 document.getElementById("score").textContent = score;
 document.getElementById("level").textContent = level;
 document.getElementById("hiscore").textContent = hiscore;
@@ -19,7 +19,7 @@ nameInput.value = localStorage.playerName || "";
 nameInput.oninput = () => localStorage.playerName = nameInput.value;
 
 const rocketSelect = document.getElementById("rocketType");
-rocketSelect.value = localStorage.rocketType || "default";
+rocketSelect.value = rocketType;
 rocketSelect.onchange = () => {
   rocketType = rocketSelect.value;
   localStorage.rocketType = rocketType;
@@ -30,7 +30,10 @@ const music = new Audio("https://cdn.pixabay.com/audio/2022/12/19/audio_124b03d7
 music.loop = true;
 music.volume = parseFloat(document.getElementById("musicVolume").value);
 music.play();
-document.getElementById("musicVolume").oninput = e => music.volume = parseFloat(e.target.value);
+
+document.getElementById("musicVolume").oninput = e => {
+  music.volume = parseFloat(e.target.value);
+};
 
 const fxVolumeSlider = document.getElementById("fxVolume");
 let fxVolume = parseFloat(fxVolumeSlider.value);
@@ -42,6 +45,7 @@ function playFx(url) {
   fx.play();
 }
 
+// Asteroid oluştur
 function spawnAsteroid() {
   asteroids.push({
     x: Math.random() * canvas.width,
@@ -51,6 +55,7 @@ function spawnAsteroid() {
   });
 }
 
+// Roket ateşle
 function fireMissile(x) {
   let missilesToFire = (rocketType === "dual") ? [x - 10, x + 10] : [x];
   missilesToFire.forEach(mx => {
@@ -60,6 +65,7 @@ function fireMissile(x) {
   if (window.navigator.vibrate) navigator.vibrate(50);
 }
 
+// Dokunma/klik algılama
 canvas.addEventListener("click", (e) => {
   if (!playing) return;
   const rect = canvas.getBoundingClientRect();
@@ -67,6 +73,7 @@ canvas.addEventListener("click", (e) => {
   fireMissile(x);
 });
 
+// Oyun mantığı
 function update() {
   if (!playing) return;
 
@@ -97,9 +104,11 @@ function update() {
   });
 }
 
+// Çizim
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Asteroid çiz
   ctx.fillStyle = "orange";
   asteroids.forEach(a => {
     ctx.beginPath();
@@ -107,6 +116,7 @@ function draw() {
     ctx.fill();
   });
 
+  // Roket çiz
   ctx.fillStyle = "#00ffff";
   missiles.forEach(m => {
     ctx.beginPath();
@@ -115,6 +125,7 @@ function draw() {
   });
 }
 
+// Oyun döngüsü
 function gameLoop() {
   update();
   draw();
@@ -123,12 +134,14 @@ function gameLoop() {
 gameLoop();
 setInterval(spawnAsteroid, 1000);
 
+// Tema değiştir
 function toggleTheme() {
   theme = theme === "dark" ? "light" : "dark";
   document.body.style.background = theme === "dark" ? "black" : "white";
   document.body.style.color = theme === "dark" ? "lime" : "black";
 }
 
+// Ekran görüntüsü
 function takeScreenshot() {
   const img = canvas.toDataURL("image/png");
   const a = document.createElement("a");
@@ -137,6 +150,7 @@ function takeScreenshot() {
   a.click();
 }
 
+// Skor paylaş
 function shareScore() {
   const name = nameInput.value || "Oyuncu";
   const msg = `${name} Tap Tap Missile'da ${score} skor yaptı! 🚀`;
