@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asteroid Defense</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="favicon.ico" />
@@ -10,80 +10,81 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: black;
-      color: lime;
-      font-family: sans-serif;
-      user-select: none;
+      font-family: Arial, sans-serif;
+      background: url('space-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
     }
     #gameCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+      display: block;
     }
-    #startScreen, #settingsPanel {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.8);
-      padding: 20px;
-      border: 2px solid lime;
-      border-radius: 10px;
-      text-align: center;
-      z-index: 10;
-    }
-    #settingsPanel {
-      display: none;
-      top: auto;
-      bottom: 10px;
-      left: 10px;
-      transform: none;
-    }
-    .button {
-      margin: 5px;
-      padding: 8px 14px;
-      background: black;
-      border: 1px solid lime;
-      color: lime;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #stats {
+    #ui {
       position: absolute;
       top: 10px;
       left: 10px;
-      z-index: 5;
+      color: lime;
+      font-weight: bold;
+      z-index: 2;
     }
-    #controls {
+    #settingsBtn {
       position: absolute;
       top: 10px;
       right: 10px;
+      z-index: 2;
+    }
+    #settingsPanel {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border: 1px solid lime;
+      border-radius: 5px;
+      z-index: 3;
+    }
+    button {
+      margin: 5px 0;
+      padding: 5px 10px;
+      background-color: black;
+      color: lime;
+      border: 1px solid lime;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #startScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
       z-index: 5;
     }
   </style>
 </head>
 <body>
+  <div id="startScreen">
+    <h1>🚀 Asteroid Defense</h1>
+    <button onclick="startGame()">Oyuna Başla</button>
+  </div>
+
   <canvas id="gameCanvas"></canvas>
 
-  <div id="startScreen">
-    <h2>🚀 Asteroid Defense</h2>
-    <label>🎮 Oyuncu: <input id="playerName" placeholder="İsminizi yazın" /></label>
-    <br /><br />
-    <button class="button" onclick="startGame()">Oyuna Başla</button>
+  <div id="ui">
+    <div>⭐ Skor: <span id="score">0</span></div>
+    <div>🚀 Roket: <span id="rocketType">Basic</span></div>
+    <button id="pauseBtn" onclick="togglePause()">⏸️ Durdur</button>
   </div>
 
-  <div id="controls">
-    <button class="button" onclick="toggleSettings()">⚙️ Ayarları Aç/Kapat</button>
-  </div>
+  <button id="settingsBtn" onclick="toggleSettings()">⚙️ Ayarları Aç/Kapat</button>
 
   <div id="settingsPanel">
-    <button class="button" onclick="togglePause()">⏸️ Durdur / Devam</button><br />
-    <button class="button" onclick="backToMenu()">🏠 Ana Menüye Dön</button>
-  </div>
-
-  <div id="stats">
-    <div id="scoreDisplay">⭐ Skor: 0</div>
-    <div id="rocketType">🚀 Roket: basic</div>
+    <button onclick="returnToMenu()">🔙 Ana Menüye Dön</button>
   </div>
 
   <script src="main.js"></script>
