@@ -1,178 +1,155 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-let playerX = canvas.width / 2;
-const playerY = canvas.height - 60;
+// Oyun değişkenleri
 let missiles = [];
-let asteroids = [];
+let meteors = [];
 let score = 0;
-let lives = 5;
-let missed = 0;
-let gameRunning = false;
+let rocketType = "Basic";
+let playerName = "";
+let gameStarted = false;
 let gamePaused = false;
-let lastScore = 0;
+let meteorSpeed = 3;
+let doubleRocket = false;
 
-const playerImage = new Image();
-playerImage.src = "rocket.png";
+// Arka plan görseli
+const background = new Image();
+background.src = "space-bg.jpg";
 
-const asteroidImage = new Image();
-asteroidImage.src = "asteroid.png";
+// Görseller
+const missileImg = new Image();
+missileImg.src = "missile.png";
 
-const bgImage = new Image();
-bgImage.src = "space-bg.jpg";
+const meteorImg = new Image();
+meteorImg.src = "meteor.png";
 
-canvas.addEventListener("click", (e) => {
-  if (!gameRunning || gamePaused) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  missiles.push({ x: x - 2, y: playerY });
-});
+// Skorları yükle
+const savedName = localStorage.getItem("playerName");
+const bestScore = parseInt(localStorage.getItem("bestScore")) || 0;
+if (savedName) document.getElementById("playerName").value = savedName;
 
-function spawnAsteroid() {
-  const x = Math.random() * (canvas.width - 40);
-  asteroids.push({ x: x, y: -40 });
-}
-
-function updateMissiles() {
-  for (let i = 0; i < missiles.length; i++) {
-    missiles[i].y -= 7;
-    if (missiles[i].y < 0) {
-      missiles.splice(i, 1);
-      i--;
-    }
-  }
-}
-
-function updateAsteroids() {
-  for (let i = 0; i < asteroids.length; i++) {
-    asteroids[i].y += 2.5;
-    if (asteroids[i].y > canvas.height) {
-      missed++;
-      asteroids.splice(i, 1);
-      i--;
-      if (missed >= 10) {
-        lives--;
-        missed = 0;
-        if (lives <= 0) {
-          endGame();
-        }
-      }
-    }
-  }
-}
-
-function checkCollisions() {
-  for (let i = 0; i < missiles.length; i++) {
-    for (let j = 0; j < asteroids.length; j++) {
-      const m = missiles[i];
-      const a = asteroids[j];
-      if (
-        m.x < a.x + 40 &&
-        m.x + 4 > a.x &&
-        m.y < a.y + 40 &&
-        m.y + 10 > a.y
-      ) {
-        missiles.splice(i, 1);
-        asteroids.splice(j, 1);
-        score += 10;
-        i--;
-        break;
-      }
-    }
-  }
-}
-
-function drawBackground() {
-  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-}
-
-function drawPlayer() {
-  ctx.drawImage(playerImage, playerX - 20, playerY, 40, 40);
-}
-
-function drawMissiles() {
-  ctx.fillStyle = "red";
-  missiles.forEach((m) => {
-    ctx.fillRect(m.x, m.y, 4, 10);
-  });
-}
-
-function drawAsteroids() {
-  asteroids.forEach((a) => {
-    ctx.drawImage(asteroidImage, a.x, a.y, 40, 40);
-  });
-}
-
-function drawStats() {
-  ctx.fillStyle = "white";
-  ctx.font = "16px Arial";
-  ctx.fillText("Skor: " + score, 10, 50);
-  ctx.fillText("Roket: Basic", 10, 70);
-  ctx.fillText("Can: " + lives, 10, 90);
-}
-
-function gameLoop() {
-  if (!gameRunning || gamePaused) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBackground();
-  drawPlayer();
-  drawMissiles();
-  drawAsteroids();
-  drawStats();
-  updateMissiles();
-  updateAsteroids();
-  checkCollisions();
-
-  requestAnimationFrame(gameLoop);
-}
-
+// Oyunu başlat
 function startGame() {
-  playerX = canvas.width / 2;
-  score = 0;
-  lives = 5;
-  missed = 0;
-  missiles = [];
-  asteroids = [];
-  gameRunning = true;
-  gamePaused = false;
-  document.getElementById("restartButton").style.display = "none";
-  document.getElementById("gameCanvas").style.display = "block";
-  document.getElementById("mainMenu").style.display = "none";
+  playerName = document.getElementById("playerName").value || "Oyuncu";
+  localStorage.setItem("playerName", playerName);
+  document.getElementById("menu").style.display = "none";
+  gameStarted = true;
+  spawnMeteors();
   gameLoop();
 }
 
-function endGame() {
-  gameRunning = false;
-  lastScore = score;
-  document.getElementById("restartButton").style.display = "block";
-}
-
-function toggleSettings() {
-  const menu = document.getElementById("settingsMenu");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-    gamePaused = false;
-    gameLoop();
-  } else {
-    menu.style.display = "block";
+// Ayarlar kontrolü
+document.getElementById("settingsToggle").addEventListener("click", () => {
+  const panel = document.getElementById("settingsPanel");
+  if (panel.style.display === "none") {
+    panel.style.display = "block";
     gamePaused = true;
+  } else {
+    panel.style.display = "none";
+    gamePaused = false;
+    requestAnimationFrame(gameLoop);
   }
+});
+
+// Ana menüye dön
+document.getElementById("backToMenu").addEventListener("click", () => {
+  location.reload();
+});
+
+// Füze gönder
+canvas.addEventListener("click", (e) => {
+  if (!gameStarted || gamePaused) return;
+  const x = e.clientX - 10;
+  const y = canvas.height - 60;
+
+  missiles.push({ x, y, width: 20, height: 40, speed: 10 });
+
+  // Çift roket özelliği aktifse ekstra füze
+  if (doubleRocket) {
+    missiles.push({ x: x + 30, y, width: 20, height: 40, speed: 10 });
+  }
+});
+
+// Meteor oluştur
+function spawnMeteors() {
+  setInterval(() => {
+    if (!gameStarted || gamePaused) return;
+    const x = Math.random() * (canvas.width - 40);
+    meteors.push({ x, y: -60, width: 40, height: 40, speed: meteorSpeed });
+  }, 1000);
 }
 
-function goToMainMenu() {
-  gameRunning = false;
-  gamePaused = false;
-  document.getElementById("mainMenu").style.display = "block";
-  document.getElementById("gameCanvas").style.display = "none";
-  document.getElementById("restartButton").style.display = "none";
-  document.getElementById("settingsMenu").style.display = "none";
-  updateLastScoreDisplay();
+// Çizim fonksiyonu
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+  // Füzeler
+  missiles.forEach((m, i) => {
+    m.y -= m.speed;
+    if (m.y + m.height < 0) missiles.splice(i, 1);
+    else ctx.drawImage(missileImg, m.x, m.y, m.width, m.height);
+  });
+
+  // Meteorlar
+  meteors.forEach((m, i) => {
+    m.y += m.speed;
+    if (m.y > canvas.height) meteors.splice(i, 1);
+    else ctx.drawImage(meteorImg, m.x, m.y, m.width, m.height);
+  });
+
+  // Skor
+  document.getElementById("score").innerText = score;
+  document.getElementById("rocketType").innerText = rocketType;
 }
 
-function updateLastScoreDisplay() {
-  document.getElementById("lastScoreDisplay").textContent = "Son Skor: " + lastScore;
+// Çarpışma kontrolü
+function checkCollisions() {
+  missiles.forEach((missile, mIndex) => {
+    meteors.forEach((meteor, tIndex) => {
+      if (
+        missile.x < meteor.x + meteor.width &&
+        missile.x + missile.width > meteor.x &&
+        missile.y < meteor.y + meteor.height &&
+        missile.y + missile.height > meteor.y
+      ) {
+        missiles.splice(mIndex, 1);
+        meteors.splice(tIndex, 1);
+        score += 10;
+
+        // Meteor hızı her 90 puanda artar (max 1000 puan)
+        if (score % 90 === 0 && score <= 1000) {
+          meteorSpeed += 0.5;
+        }
+
+        // Çift roket 1000 puanda açılır
+        if (score >= 1000 && !doubleRocket) {
+          doubleRocket = true;
+          rocketType = "Double";
+        }
+
+        // En yüksek skor kaydı
+        const best = parseInt(localStorage.getItem("bestScore")) || 0;
+        if (score > best) {
+          localStorage.setItem("bestScore", score);
+        }
+      }
+    });
+  });
 }
 
-document.getElementById("startButton").addEventListener("click", startGame);
-document.getElementById("restartButton").addEventListener("click", startGame);
+// Ana oyun döngüsü
+function gameLoop() {
+  if (!gameStarted || gamePaused) return;
+  draw();
+  checkCollisions();
+  requestAnimationFrame(gameLoop);
+}
+
+// Yeniden boyutlanınca canvas’ı ayarla
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
