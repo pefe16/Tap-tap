@@ -1,181 +1,182 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let playerName = "";
+let playerX = canvas.width / 2;
+const playerY = canvas.height - 60;
+let missiles = [];
+let asteroids = [];
 let score = 0;
 let lives = 5;
-let rocketType = "Basic";
+let missed = 0;
 let gameRunning = false;
-let missedMeteors = 0;
-let showSettings = false;
+let gamePaused = false;
 let lastScore = 0;
 
-const meteors = [];
-const missiles = [];
-const powerUps = [];
+const playerImage = new Image();
+playerImage.src = "rocket.png";
 
-let meteorSpeed = 3;
+const asteroidImage = new Image();
+asteroidImage.src = "asteroid.png";
 
-const meteorImg = new Image();
-meteorImg.src = "meteor.png";
+const bgImage = new Image();
+bgImage.src = "space-bg.jpg";
 
-const missileImg = new Image();
-missileImg.src = "missile.png";
+canvas.addEventListener("click", (e) => {
+  if (!gameRunning || gamePaused) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  missiles.push({ x: x - 2, y: playerY });
+});
 
-const powerUpImg = new Image();
-powerUpImg.src = "powerup.png";
-
-const bgImg = new Image();
-bgImg.src = "space-bg.jpg";
-
-let playerX = canvas.width / 2 - 20;
-const playerY = canvas.height - 100;
-
-function drawBackground() {
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+function spawnAsteroid() {
+  const x = Math.random() * (canvas.width - 40);
+  asteroids.push({ x: x, y: -40 });
 }
 
-function drawPlayer() {
-  ctx.drawImage(missileImg, playerX, playerY, 40, 80);
+function updateMissiles() {
+  for (let i = 0; i < missiles.length; i++) {
+    missiles[i].y -= 7;
+    if (missiles[i].y < 0) {
+      missiles.splice(i, 1);
+      i--;
+    }
+  }
 }
 
-function drawMeteors() {
-  meteors.forEach((meteor, index) => {
-    meteor.y += meteorSpeed;
-    ctx.drawImage(meteorImg, meteor.x, meteor.y, 50, 50);
-
-    if (meteor.y > canvas.height) {
-      meteors.splice(index, 1);
-      missedMeteors++;
-      if (missedMeteors >= 10) {
+function updateAsteroids() {
+  for (let i = 0; i < asteroids.length; i++) {
+    asteroids[i].y += 2.5;
+    if (asteroids[i].y > canvas.height) {
+      missed++;
+      asteroids.splice(i, 1);
+      i--;
+      if (missed >= 10) {
         lives--;
-        missedMeteors = 0;
+        missed = 0;
         if (lives <= 0) {
-          gameOver();
+          endGame();
         }
       }
     }
-  });
+  }
+}
+
+function checkCollisions() {
+  for (let i = 0; i < missiles.length; i++) {
+    for (let j = 0; j < asteroids.length; j++) {
+      const m = missiles[i];
+      const a = asteroids[j];
+      if (
+        m.x < a.x + 40 &&
+        m.x + 4 > a.x &&
+        m.y < a.y + 40 &&
+        m.y + 10 > a.y
+      ) {
+        missiles.splice(i, 1);
+        asteroids.splice(j, 1);
+        score += 10;
+        i--;
+        break;
+      }
+    }
+  }
+}
+
+function drawBackground() {
+  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+}
+
+function drawPlayer() {
+  ctx.drawImage(playerImage, playerX - 20, playerY, 40, 40);
 }
 
 function drawMissiles() {
-  missiles.forEach((missile, index) => {
-    missile.y -= 7;
-    ctx.drawImage(missileImg, missile.x, missile.y, 10, 30);
-
-    if (missile.y < 0) missiles.splice(index, 1);
+  ctx.fillStyle = "red";
+  missiles.forEach((m) => {
+    ctx.fillRect(m.x, m.y, 4, 10);
   });
 }
 
-function drawPowerUps() {
-  powerUps.forEach((p, i) => {
-    p.y += 2;
-    ctx.drawImage(powerUpImg, p.x, p.y, 30, 30);
-    if (p.y > canvas.height) powerUps.splice(i, 1);
+function drawAsteroids() {
+  asteroids.forEach((a) => {
+    ctx.drawImage(asteroidImage, a.x, a.y, 40, 40);
   });
 }
 
-function detectCollisions() {
-  meteors.forEach((meteor, mIndex) => {
-    missiles.forEach((missile, msIndex) => {
-      if (
-        missile.x < meteor.x + 40 &&
-        missile.x + 10 > meteor.x &&
-        missile.y < meteor.y + 40 &&
-        missile.y + 30 > meteor.y
-      ) {
-        meteors.splice(mIndex, 1);
-        missiles.splice(msIndex, 1);
-        score += 10;
-      }
-    });
-  });
-}
-
-function drawUI() {
-  document.getElementById("stats").innerHTML =
-    `Skor: ${score}<br>Roket: ${rocketType}<br>Can: ${lives}`;
-}
-
-function gameOver() {
-  gameRunning = false;
-  lastScore = score;
-  document.getElementById("mainMenu").style.display = "flex";
-  document.getElementById("lastScore").innerText = `Son Skor: ${lastScore}`;
-  resetGame();
-}
-
-function resetGame() {
-  score = 0;
-  lives = 5;
-  missedMeteors = 0;
-  meteors.length = 0;
-  missiles.length = 0;
-  powerUps.length = 0;
+function drawStats() {
+  ctx.fillStyle = "white";
+  ctx.font = "16px Arial";
+  ctx.fillText("Skor: " + score, 10, 50);
+  ctx.fillText("Roket: Basic", 10, 70);
+  ctx.fillText("Can: " + lives, 10, 90);
 }
 
 function gameLoop() {
   if (!gameRunning) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   drawPlayer();
   drawMissiles();
-  drawMeteors();
-  drawPowerUps();
-  detectCollisions();
-  drawUI();
+  drawAsteroids();
+  drawStats();
+  updateMissiles();
+  updateAsteroids();
+  checkCollisions();
+
   requestAnimationFrame(gameLoop);
 }
 
-function spawnMeteor() {
-  if (gameRunning) {
-    const x = Math.random() * (canvas.width - 50);
-    meteors.push({ x, y: -50 });
-  }
-}
-
-setInterval(spawnMeteor, 1000);
-
-function fireMissile(e) {
-  if (!gameRunning) return;
-  const missileX = playerX + 15;
-  missiles.push({ x: missileX, y: playerY });
-}
-
-canvas.addEventListener("click", fireMissile);
-
 function startGame() {
-  playerName = document.getElementById("playerNameInput").value || "Oyuncu";
-  document.getElementById("mainMenu").style.display = "none";
+  playerX = canvas.width / 2;
+  score = 0;
+  lives = 5;
+  missed = 0;
+  missiles = [];
+  asteroids = [];
   gameRunning = true;
+  gamePaused = false;
+  document.getElementById("restartButton").style.display = "none";
   gameLoop();
 }
 
-function toggleSettings() {
-  showSettings = !showSettings;
-  const menu = document.getElementById("settingsMenu");
-  menu.style.display = showSettings ? "flex" : "none";
-  gameRunning = !showSettings;
-  if (gameRunning) gameLoop();
-}
-
-function goToMainMenu() {
+function endGame() {
   gameRunning = false;
-  showSettings = false;
-  document.getElementById("settingsMenu").style.display = "none";
-  document.getElementById("mainMenu").style.display = "flex";
-  document.getElementById("lastScore").innerText = `Son Skor: ${score}`;
-  resetGame();
+  lastScore = score;
+  document.getElementById("restartButton").style.display = "block";
 }
 
-function updateClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2, "0");
-  const m = String(now.getMinutes()).padStart(2, "0");
-  document.getElementById("clock").innerText = `${h}:${m} 🌙`;
+setInterval(() => {
+  if (gameRunning && !gamePaused) {
+    spawnAsteroid();
+  }
+}, 1000);
+
+// Ayarlar menüsünü açınca oyunu durdurma
+function toggleSettings() {
+  const settingsMenu = document.getElementById("settingsMenu");
+  if (settingsMenu.style.display === "block") {
+    settingsMenu.style.display = "none";
+    gamePaused = false;
+    gameLoop();
+  } else {
+    settingsMenu.style.display = "block";
+    gamePaused = true;
+  }
 }
-setInterval(updateClock, 1000);
-updateClock();
+
+// Skoru ana menüye yansıt
+function updateLastScoreDisplay() {
+  document.getElementById("lastScoreDisplay").textContent = "Son Skor: " + lastScore;
+}
+
+document.getElementById("startButton").addEventListener("click", () => {
+  document.getElementById("mainMenu").style.display = "none";
+  canvas.style.display = "block";
+  updateLastScoreDisplay();
+  startGame();
+});
+
+document.getElementById("restartButton").addEventListener("click", () => {
+  startGame();
+});
