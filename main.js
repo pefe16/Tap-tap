@@ -8,11 +8,9 @@ let score = 0;
 let lives = 5;
 let missedMeteors = 0;
 let gameRunning = false;
-let showStartScreen = true;
 
 let missiles = [];
 let meteors = [];
-let powerUps = [];
 
 const missileImg = new Image();
 missileImg.src = "missile.png";
@@ -20,8 +18,8 @@ missileImg.src = "missile.png";
 const meteorImg = new Image();
 meteorImg.src = "meteor.png";
 
-const powerUpImg = new Image();
-powerUpImg.src = "powerup.png";
+const bgImage = new Image();
+bgImage.src = "space-bg.jpg"; // sadece oyun sırasında kullanılacak
 
 function spawnMeteor() {
   const x = Math.random() * canvas.width;
@@ -55,11 +53,13 @@ function resetGame() {
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Gökyüzü arka planı
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Sadece oyun sırasında arka plan görselini çiz
+  if (gameRunning) {
+    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
   // Meteorlar
   for (let i = meteors.length - 1; i >= 0; i--) {
