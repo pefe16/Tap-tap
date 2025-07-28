@@ -3,58 +3,109 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// Oyun değişkenleri
 let missiles = [];
 let meteors = [];
-let powerUps = [];
 let score = 0;
 let rocketType = "Basic";
-let gameStarted = false;
 let playerName = "";
+let gameStarted = false;
+let gamePaused = false;
+let meteorSpeed = 3;
+let doubleRocket = false;
 
-let background = new Image();
+// Arka plan görseli
+const background = new Image();
 background.src = "space-bg.jpg";
 
-let missileImg = new Image();
+// Görseller
+const missileImg = new Image();
 missileImg.src = "missile.png";
 
-let meteorImg = new Image();
+const meteorImg = new Image();
 meteorImg.src = "meteor.png";
 
+// Skorları yükle
+const savedName = localStorage.getItem("playerName");
+const bestScore = parseInt(localStorage.getItem("bestScore")) || 0;
+if (savedName) document.getElementById("playerName").value = savedName;
+
+// Oyunu başlat
 function startGame() {
-  const nameInput = document.getElementById("playerName");
-  playerName = nameInput.value || "Oyuncu";
+  playerName = document.getElementById("playerName").value || "Oyuncu";
+  localStorage.setItem("playerName", playerName);
   document.getElementById("menu").style.display = "none";
   gameStarted = true;
-  spawnMeteor();
+  spawnMeteors();
   gameLoop();
 }
 
-function drawBackground() {
+// Ayarlar kontrolü
+document.getElementById("settingsToggle").addEventListener("click", () => {
+  const panel = document.getElementById("settingsPanel");
+  if (panel.style.display === "none") {
+    panel.style.display = "block";
+    gamePaused = true;
+  } else {
+    panel.style.display = "none";
+    gamePaused = false;
+    requestAnimationFrame(gameLoop);
+  }
+});
+
+// Ana menüye dön
+document.getElementById("backToMenu").addEventListener("click", () => {
+  location.reload();
+});
+
+// Füze gönder
+canvas.addEventListener("click", (e) => {
+  if (!gameStarted || gamePaused) return;
+  const x = e.clientX - 10;
+  const y = canvas.height - 60;
+
+  missiles.push({ x, y, width: 20, height: 40, speed: 10 });
+
+  // Çift roket özelliği aktifse ekstra füze
+  if (doubleRocket) {
+    missiles.push({ x: x + 30, y, width: 20, height: 40, speed: 10 });
+  }
+});
+
+// Meteor oluştur
+function spawnMeteors() {
+  setInterval(() => {
+    if (!gameStarted || gamePaused) return;
+    const x = Math.random() * (canvas.width - 40);
+    meteors.push({ x, y: -60, width: 40, height: 40, speed: meteorSpeed });
+  }, 1000);
+}
+
+// Çizim fonksiyonu
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-}
 
-function drawMissiles() {
-  missiles.forEach((m, index) => {
+  // Füzeler
+  missiles.forEach((m, i) => {
     m.y -= m.speed;
-    if (m.y + m.height < 0) {
-      missiles.splice(index, 1);
-    } else {
-      ctx.drawImage(missileImg, m.x, m.y, m.width, m.height);
-    }
+    if (m.y + m.height < 0) missiles.splice(i, 1);
+    else ctx.drawImage(missileImg, m.x, m.y, m.width, m.height);
   });
-}
 
-function drawMeteors() {
-  meteors.forEach((m, index) => {
+  // Meteorlar
+  meteors.forEach((m, i) => {
     m.y += m.speed;
-    if (m.y > canvas.height) {
-      meteors.splice(index, 1);
-    } else {
-      ctx.drawImage(meteorImg, m.x, m.y, m.width, m.height);
-    }
+    if (m.y > canvas.height) meteors.splice(i, 1);
+    else ctx.drawImage(meteorImg, m.x, m.y, m.width, m.height);
   });
+
+  // Skor
+  document.getElementById("score").innerText = score;
+  document.getElementById("rocketType").innerText = rocketType;
 }
 
+// Çarpışma kontrolü
 function checkCollisions() {
   missiles.forEach((missile, mIndex) => {
     meteors.forEach((meteor, tIndex) => {
@@ -67,58 +118,37 @@ function checkCollisions() {
         missiles.splice(mIndex, 1);
         meteors.splice(tIndex, 1);
         score += 10;
-        document.getElementById("score").innerText = score;
+
+        // Meteor hızı her 90 puanda artar (max 1000 puan)
+        if (score % 90 === 0 && score <= 1000) {
+          meteorSpeed += 0.5;
+        }
+
+        // Çift roket 1000 puanda açılır
+        if (score >= 1000 && !doubleRocket) {
+          doubleRocket = true;
+          rocketType = "Double";
+        }
+
+        // En yüksek skor kaydı
+        const best = parseInt(localStorage.getItem("bestScore")) || 0;
+        if (score > best) {
+          localStorage.setItem("bestScore", score);
+        }
       }
     });
   });
 }
 
-function spawnMeteor() {
-  setInterval(() => {
-    const x = Math.random() * (canvas.width - 40);
-    meteors.push({
-      x,
-      y: -60,
-      width: 40,
-      height: 40,
-      speed: 2 + Math.random() * 2,
-    });
-  }, 1000);
-}
-
+// Ana oyun döngüsü
 function gameLoop() {
-  if (!gameStarted) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBackground();
-  drawMissiles();
-  drawMeteors();
+  if (!gameStarted || gamePaused) return;
+  draw();
   checkCollisions();
   requestAnimationFrame(gameLoop);
 }
 
-canvas.addEventListener("click", (e) => {
-  if (!gameStarted) return;
-  const missileX = e.clientX - 10;
-  const missileY = canvas.height - 60;
-
-  missiles.push({
-    x: missileX,
-    y: missileY,
-    width: 20,
-    height: 40,
-    speed: 8,
-  });
-});
-
-document.getElementById("settingsToggle").addEventListener("click", () => {
-  const panel = document.getElementById("settingsPanel");
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
-});
-
-document.getElementById("backToMenu").addEventListener("click", () => {
-  location.reload(); // Oyunu sıfırla ve menüye dön
-});
-
+// Yeniden boyutlanınca canvas’ı ayarla
 window.addEventListener("resize", () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
