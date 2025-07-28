@@ -1,7 +1,5 @@
-const canvas = document.createElement("canvas");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-document.body.appendChild(canvas);
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -9,184 +7,119 @@ let missiles = [];
 let meteors = [];
 let powerUps = [];
 let score = 0;
+let rocketType = "Basic";
+let gameStarted = false;
+let playerName = "";
 
-const missileImg = new Image();
+let background = new Image();
+background.src = "space-bg.jpg";
+
+let missileImg = new Image();
 missileImg.src = "missile.png";
 
-const meteorImg = new Image();
+let meteorImg = new Image();
 meteorImg.src = "meteor.png";
 
-const powerUpImg = new Image();
-powerUpImg.src = "powerup.png";
-
-const bgImg = new Image();
-bgImg.src = "space-bg.jpg";
-
-// Oyuncu nesnesi
-const player = {
-  x: canvas.width / 2,
-  y: canvas.height - 80,
-  width: 40,
-  height: 40,
-};
-
-// Ayar paneli
-const settingsBtn = document.createElement("button");
-settingsBtn.innerHTML = "⚙️ Ayarları Aç/Kapat";
-settingsBtn.style.position = "absolute";
-settingsBtn.style.top = "20px";
-settingsBtn.style.right = "20px";
-settingsBtn.style.zIndex = 2;
-settingsBtn.style.padding = "10px";
-settingsBtn.style.border = "2px solid lime";
-settingsBtn.style.borderRadius = "10px";
-settingsBtn.style.background = "black";
-settingsBtn.style.color = "lime";
-settingsBtn.style.fontSize = "16px";
-document.body.appendChild(settingsBtn);
-
-const settingsPanel = document.createElement("div");
-settingsPanel.style.position = "absolute";
-settingsPanel.style.top = "70px";
-settingsPanel.style.right = "20px";
-settingsPanel.style.padding = "10px";
-settingsPanel.style.background = "rgba(0,0,0,0.7)";
-settingsPanel.style.color = "white";
-settingsPanel.style.display = "none";
-settingsPanel.style.zIndex = 2;
-settingsPanel.innerHTML = `
-  <button id="backToMenu">🔙 Ana Menüye Dön</button><br><br>
-`;
-document.body.appendChild(settingsPanel);
-
-settingsBtn.addEventListener("click", () => {
-  settingsPanel.style.display = settingsPanel.style.display === "none" ? "block" : "none";
-});
-
-document.getElementById("backToMenu").addEventListener("click", () => {
-  location.reload();
-});
-
-// Füze gönderme - düz yukarı
-canvas.addEventListener("click", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const missileX = e.clientX - rect.left;
-  missiles.push({
-    x: missileX - 10,
-    y: player.y,
-    width: 20,
-    height: 40,
-    speed: 7
-  });
-});
-
-// Meteor üret
-function spawnMeteor() {
-  meteors.push({
-    x: Math.random() * (canvas.width - 40),
-    y: -40,
-    width: 40,
-    height: 40,
-    speed: 2 + Math.random() * 3
-  });
+function startGame() {
+  const nameInput = document.getElementById("playerName");
+  playerName = nameInput.value || "Oyuncu";
+  document.getElementById("menu").style.display = "none";
+  gameStarted = true;
+  spawnMeteor();
+  gameLoop();
 }
 
-// Power-up üret
-function spawnPowerUp() {
-  powerUps.push({
-    x: Math.random() * (canvas.width - 30),
-    y: -30,
-    width: 30,
-    height: 30,
-    speed: 2
-  });
+function drawBackground() {
+  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 }
 
-// Çizim
-function draw() {
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-
-  // Oyuncu
-  ctx.drawImage(icon, player.x - player.width / 2, player.y, player.width, player.height);
-
-  // Füzeler
-  missiles.forEach((m) => {
-    ctx.drawImage(missileImg, m.x, m.y, m.width, m.height);
-  });
-
-  // Meteorlar
-  meteors.forEach((m) => {
-    ctx.drawImage(meteorImg, m.x, m.y, m.width, m.height);
-  });
-
-  // Power-up
-  powerUps.forEach((p) => {
-    ctx.drawImage(powerUpImg, p.x, p.y, p.width, p.height);
-  });
-
-  // Skor
-  ctx.fillStyle = "lime";
-  ctx.font = "20px Arial";
-  ctx.fillText("⭐ Skor: " + score, 20, 40);
-  ctx.fillText("🚀 Roket: Basic", 20, 70);
-}
-
-// Güncelleme
-function update() {
-  missiles.forEach((m, i) => {
+function drawMissiles() {
+  missiles.forEach((m, index) => {
     m.y -= m.speed;
-    if (m.y < -m.height) missiles.splice(i, 1);
+    if (m.y + m.height < 0) {
+      missiles.splice(index, 1);
+    } else {
+      ctx.drawImage(missileImg, m.x, m.y, m.width, m.height);
+    }
   });
+}
 
-  meteors.forEach((m, i) => {
+function drawMeteors() {
+  meteors.forEach((m, index) => {
     m.y += m.speed;
-    if (m.y > canvas.height) meteors.splice(i, 1);
+    if (m.y > canvas.height) {
+      meteors.splice(index, 1);
+    } else {
+      ctx.drawImage(meteorImg, m.x, m.y, m.width, m.height);
+    }
   });
+}
 
-  powerUps.forEach((p, i) => {
-    p.y += p.speed;
-    if (p.y > canvas.height) powerUps.splice(i, 1);
-  });
-
-  // Çarpışmalar
-  missiles.forEach((m, mi) => {
-    meteors.forEach((me, mei) => {
-      if (m.x < me.x + me.width &&
-          m.x + m.width > me.x &&
-          m.y < me.y + me.height &&
-          m.y + m.height > me.y) {
-        missiles.splice(mi, 1);
-        meteors.splice(mei, 1);
-        score++;
-      }
-    });
-
-    powerUps.forEach((p, pi) => {
-      if (m.x < p.x + p.width &&
-          m.x + m.width > p.x &&
-          m.y < p.y + p.height &&
-          m.y + m.height > p.y) {
-        missiles.splice(mi, 1);
-        powerUps.splice(pi, 1);
-        score += 5;
+function checkCollisions() {
+  missiles.forEach((missile, mIndex) => {
+    meteors.forEach((meteor, tIndex) => {
+      if (
+        missile.x < meteor.x + meteor.width &&
+        missile.x + missile.width > meteor.x &&
+        missile.y < meteor.y + meteor.height &&
+        missile.y + missile.height > meteor.y
+      ) {
+        missiles.splice(mIndex, 1);
+        meteors.splice(tIndex, 1);
+        score += 10;
+        document.getElementById("score").innerText = score;
       }
     });
   });
+}
+
+function spawnMeteor() {
+  setInterval(() => {
+    const x = Math.random() * (canvas.width - 40);
+    meteors.push({
+      x,
+      y: -60,
+      width: 40,
+      height: 40,
+      speed: 2 + Math.random() * 2,
+    });
+  }, 1000);
 }
 
 function gameLoop() {
-  update();
-  draw();
+  if (!gameStarted) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackground();
+  drawMissiles();
+  drawMeteors();
+  checkCollisions();
   requestAnimationFrame(gameLoop);
 }
 
-// Başlangıçta üretmeye başla
-setInterval(spawnMeteor, 1200);
-setInterval(spawnPowerUp, 7000);
+canvas.addEventListener("click", (e) => {
+  if (!gameStarted) return;
+  const missileX = e.clientX - 10;
+  const missileY = canvas.height - 60;
 
-const icon = new Image();
-icon.src = "icon.png";
+  missiles.push({
+    x: missileX,
+    y: missileY,
+    width: 20,
+    height: 40,
+    speed: 8,
+  });
+});
 
-bgImg.onload = () => {
-  gameLoop();
-};
+document.getElementById("settingsToggle").addEventListener("click", () => {
+  const panel = document.getElementById("settingsPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+});
+
+document.getElementById("backToMenu").addEventListener("click", () => {
+  location.reload(); // Oyunu sıfırla ve menüye dön
+});
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
