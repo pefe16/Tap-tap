@@ -2,96 +2,97 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Asteroid Defense</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <meta name="theme-color" content="#000000" />
+  <link rel="icon" type="image/png" href="icon.png" />
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
-      background: black;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      color: white;
+      background-color: black;
+      touch-action: manipulation;
     }
-
-    canvas {
+    #gameCanvas {
       display: block;
+      background-color: black;
     }
-
-    #startScreen, #gameOverScreen {
+    #mainMenu {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 5;
-    }
-
-    #startScreen input {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 10px;
-    }
-
-    #startButton, #restartButton {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      background: green;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
       color: white;
+    }
+    #mainMenu h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    #nameInput {
+      padding: 10px;
       font-size: 16px;
+      width: 200px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    #startButton {
+      padding: 12px 20px;
+      font-size: 18px;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
-
-    #restartButton {
-      background: crimson;
-    }
-
-    #stats {
+    #scoreDisplay {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px;
-      border-radius: 8px;
-      z-index: 3;
+      color: white;
+      font-size: 16px;
+      z-index: 2;
     }
-
-    #settingsButton {
+    #settingsBtn {
       position: absolute;
       top: 10px;
       right: 10px;
-      z-index: 3;
-      background: #333;
+      background-color: #333;
       color: white;
-      padding: 8px 12px;
-      border: none;
+      padding: 6px 12px;
       border-radius: 6px;
-      cursor: pointer;
+      font-size: 14px;
+      z-index: 2;
     }
-
-    #settingsPanel {
+    #settingsMenu {
+      display: none;
       position: absolute;
       top: 50px;
       right: 10px;
-      background: rgba(0,0,0,0.8);
+      background-color: #222;
       color: white;
       padding: 10px;
       border-radius: 8px;
-      display: none;
-      z-index: 3;
+      z-index: 2;
     }
-
-    #lastScoreDisplay {
+    #restartBtn {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 12px 20px;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      z-index: 2;
+    }
+    #lastScore {
       margin-top: 10px;
       font-size: 16px;
       color: #ccc;
@@ -99,31 +100,26 @@
   </style>
 </head>
 <body>
-  <div id="startScreen">
+  <canvas id="gameCanvas" width="360" height="640"></canvas>
+
+  <div id="mainMenu">
     <h1>🚀 Asteroid Defense</h1>
-    <input type="text" id="playerName" placeholder="İsminizi girin" />
+    <input type="text" id="nameInput" placeholder="İsminizi girin" />
+    <br />
     <button id="startButton">Başla</button>
-    <div id="lastScoreDisplay">Son Skor: 0</div>
+    <div id="lastScore">Son Skor: 0</div>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
+  <div id="scoreDisplay">Skor: 0<br>Roket: Basic<br>Can: 5</div>
 
-  <div id="stats">
-    <div id="score">Skor: 0</div>
-    <div id="rocketType">Roket: Basic</div>
-    <div id="lives">Can: 5</div>
+  <button id="settingsBtn">Ayarlar</button>
+  <div id="settingsMenu">
+    <p>Ses: Açık</p>
+    <p>Titreşim: Açık</p>
+    <p>Gece Modu: Açık</p>
   </div>
 
-  <button id="settingsButton">Ayarlar</button>
-
-  <div id="settingsPanel">
-    <button id="backToMenu">Ana Menüye Dön</button>
-  </div>
-
-  <div id="gameOverScreen" style="display: none;">
-    <h2>Oyun Bitti</h2>
-    <button id="restartButton">Tekrar Oyna</button>
-  </div>
+  <button id="restartBtn">Tekrar Oyna</button>
 
   <script src="main.js"></script>
 </body>
