@@ -2,14 +2,12 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Asteroid Defense</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="manifest" href="manifest.json">
   <style>
-    body, html {
+    body {
       margin: 0;
-      padding: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
       background-color: black;
@@ -17,109 +15,97 @@
     }
     #gameCanvas {
       display: block;
-      background-color: black;
+      width: 100vw;
+      height: 100vh;
     }
-    #mainMenu {
+    #mainMenu, #settingsMenu {
       position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      color: white;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
     }
     #mainMenu h1 {
-      font-size: 32px;
-      margin-bottom: 20px;
+      font-size: 2.5em;
+      color: white;
     }
-    #nameInput {
+    #mainMenu input {
       padding: 10px;
-      font-size: 16px;
-      width: 200px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border: none;
+      font-size: 1em;
+      margin: 10px 0;
     }
-    #startButton {
-      padding: 12px 20px;
-      font-size: 18px;
+    #mainMenu button, #settingsMenu button {
+      padding: 10px 20px;
+      font-size: 1.2em;
       background-color: green;
       color: white;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #scoreDisplay {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-size: 16px;
-      z-index: 2;
-    }
-    #settingsBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #333;
-      color: white;
-      padding: 6px 12px;
       border-radius: 6px;
-      font-size: 14px;
-      z-index: 2;
+      margin: 10px;
     }
     #settingsMenu {
+      background-color: rgba(0, 0, 0, 0.9);
       display: none;
-      position: absolute;
-      top: 50px;
-      right: 10px;
-      background-color: #222;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      z-index: 2;
+      z-index: 3;
     }
-    #restartBtn {
-      display: none;
+    #settingsMenu button {
+      background-color: #444;
+    }
+    #settingsButton {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 12px 20px;
-      background-color: green;
+      top: 20px;
+      right: 20px;
+      z-index: 4;
+      background-color: rgba(0,0,0,0.7);
       color: white;
+      padding: 10px 15px;
       border: none;
       border-radius: 8px;
-      font-size: 18px;
-      z-index: 2;
+      font-size: 1em;
     }
-    #lastScore {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #ccc;
+    #stats {
+      position: absolute;
+      top: 50px;
+      left: 20px;
+      z-index: 4;
+      color: white;
+      font-size: 1.2em;
+      text-shadow: 1px 1px black;
+    }
+    #clock {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      color: white;
+      font-size: 1.2em;
+      z-index: 4;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="360" height="640"></canvas>
-
   <div id="mainMenu">
     <h1>🚀 Asteroid Defense</h1>
-    <input type="text" id="nameInput" placeholder="İsminizi girin" />
-    <br />
-    <button id="startButton">Başla</button>
-    <div id="lastScore">Son Skor: 0</div>
+    <input type="text" id="playerNameInput" placeholder="Adınızı girin" />
+    <button onclick="startGame()">Başla</button>
+    <p id="lastScore" style="color:white;">Son Skor: 0</p>
   </div>
 
-  <div id="scoreDisplay">Skor: 0<br>Roket: Basic<br>Can: 5</div>
+  <canvas id="gameCanvas"></canvas>
 
-  <button id="settingsBtn">Ayarlar</button>
   <div id="settingsMenu">
-    <p>Ses: Açık</p>
-    <p>Titreşim: Açık</p>
-    <p>Gece Modu: Açık</p>
+    <h2 style="color:white;">Ayarlar</h2>
+    <button onclick="toggleSettings()">Ayarları Kapat</button>
+    <button onclick="goToMainMenu()">Ana Menüye Dön</button>
   </div>
 
-  <button id="restartBtn">Tekrar Oyna</button>
+  <div id="clock">00:00 🌙</div>
+  <div id="stats">Skor: 0<br>Roket: Basic<br>Can: 5</div>
+  <button id="settingsButton" onclick="toggleSettings()">Ayarlar</button>
 
   <script src="main.js"></script>
 </body>
