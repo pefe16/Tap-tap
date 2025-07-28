@@ -112,7 +112,7 @@ function drawStats() {
 }
 
 function gameLoop() {
-  if (!gameRunning) return;
+  if (!gameRunning || gamePaused) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
@@ -137,6 +137,8 @@ function startGame() {
   gameRunning = true;
   gamePaused = false;
   document.getElementById("restartButton").style.display = "none";
+  document.getElementById("gameCanvas").style.display = "block";
+  document.getElementById("mainMenu").style.display = "none";
   gameLoop();
 }
 
@@ -146,37 +148,31 @@ function endGame() {
   document.getElementById("restartButton").style.display = "block";
 }
 
-setInterval(() => {
-  if (gameRunning && !gamePaused) {
-    spawnAsteroid();
-  }
-}, 1000);
-
-// Ayarlar menüsünü açınca oyunu durdurma
 function toggleSettings() {
-  const settingsMenu = document.getElementById("settingsMenu");
-  if (settingsMenu.style.display === "block") {
-    settingsMenu.style.display = "none";
+  const menu = document.getElementById("settingsMenu");
+  if (menu.style.display === "block") {
+    menu.style.display = "none";
     gamePaused = false;
     gameLoop();
   } else {
-    settingsMenu.style.display = "block";
+    menu.style.display = "block";
     gamePaused = true;
   }
 }
 
-// Skoru ana menüye yansıt
+function goToMainMenu() {
+  gameRunning = false;
+  gamePaused = false;
+  document.getElementById("mainMenu").style.display = "block";
+  document.getElementById("gameCanvas").style.display = "none";
+  document.getElementById("restartButton").style.display = "none";
+  document.getElementById("settingsMenu").style.display = "none";
+  updateLastScoreDisplay();
+}
+
 function updateLastScoreDisplay() {
   document.getElementById("lastScoreDisplay").textContent = "Son Skor: " + lastScore;
 }
 
-document.getElementById("startButton").addEventListener("click", () => {
-  document.getElementById("mainMenu").style.display = "none";
-  canvas.style.display = "block";
-  updateLastScoreDisplay();
-  startGame();
-});
-
-document.getElementById("restartButton").addEventListener("click", () => {
-  startGame();
-});
+document.getElementById("startButton").addEventListener("click", startGame);
+document.getElementById("restartButton").addEventListener("click", startGame);
