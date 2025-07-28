@@ -8,6 +8,8 @@ let score = 0;
 let lives = 5;
 let missedMeteors = 0;
 let gameRunning = false;
+let gamePaused = false;
+let lastScore = 0;
 
 let missiles = [];
 let meteors = [];
@@ -19,7 +21,7 @@ const meteorImg = new Image();
 meteorImg.src = "meteor.png";
 
 const bgImage = new Image();
-bgImage.src = "space-bg.jpg"; // sadece oyun sırasında kullanılacak
+bgImage.src = "space-bg.jpg";
 
 function spawnMeteor() {
   const x = Math.random() * canvas.width;
@@ -49,19 +51,21 @@ function resetGame() {
   missiles = [];
   meteors = [];
   gameRunning = true;
+  gamePaused = false;
   document.getElementById("gameOverScreen").style.display = "none";
 }
 
 function draw() {
-  // Sadece oyun sırasında arka plan görselini çiz
-  if (gameRunning) {
+  if (gameRunning && !gamePaused) {
     ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
   } else {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // Meteorlar
+  if (!gameRunning || gamePaused) return;
+
+  // Meteorları çiz
   for (let i = meteors.length - 1; i >= 0; i--) {
     let m = meteors[i];
     m.y += m.speed;
@@ -76,13 +80,15 @@ function draw() {
         missedMeteors = 0;
         if (lives <= 0) {
           gameRunning = false;
+          lastScore = score;
+          document.getElementById("lastScoreDisplay").innerText = `Son Skor: ${lastScore}`;
           document.getElementById("gameOverScreen").style.display = "flex";
         }
       }
     }
   }
 
-  // Füzeler
+  // Füzeleri çiz
   for (let i = missiles.length - 1; i >= 0; i--) {
     let ms = missiles[i];
     ms.y -= ms.speed;
@@ -116,25 +122,29 @@ function draw() {
 }
 
 function update() {
-  if (!gameRunning) return;
-  draw();
-  requestAnimationFrame(update);
+  if (gameRunning && !gamePaused) {
+    draw();
+    requestAnimationFrame(update);
+  } else if (gameRunning && gamePaused) {
+    draw(); // sadece durdurulmuş ekranı göster
+  }
 }
 
 canvas.addEventListener("click", function (e) {
-  if (!gameRunning) return;
+  if (!gameRunning || gamePaused) return;
   spawnMissile(e.clientX, canvas.height - 100);
 });
 
 setInterval(() => {
-  if (gameRunning) spawnMeteor();
+  if (gameRunning && !gamePaused) spawnMeteor();
 }, 800);
 
-// Başlatma ekranı
+// Başlat butonu
 document.getElementById("startButton").addEventListener("click", () => {
   playerName = document.getElementById("playerName").value || "Oyuncu";
   document.getElementById("startScreen").style.display = "none";
   gameRunning = true;
+  gamePaused = false;
   update();
 });
 
@@ -144,17 +154,23 @@ document.getElementById("restartButton").addEventListener("click", () => {
   update();
 });
 
-// Ayarlar paneli
+// Ayarlar butonu
 document.getElementById("settingsButton").addEventListener("click", () => {
   const panel = document.getElementById("settingsPanel");
-  const isVisible = panel.style.display === "block";
-  panel.style.display = isVisible ? "none" : "block";
-  gameRunning = !isVisible;
+  const isOpen = panel.style.display === "block";
+  panel.style.display = isOpen ? "none" : "block";
+  gamePaused = !isOpen;
+  if (!isOpen) {
+    update(); // devam ettir
+  }
 });
 
 // Ana menüye dön
 document.getElementById("backToMenu").addEventListener("click", () => {
   document.getElementById("settingsPanel").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
+  lastScore = score;
+  document.getElementById("lastScoreDisplay").innerText = `Son Skor: ${lastScore}`;
   gameRunning = false;
+  gamePaused = false;
 });
