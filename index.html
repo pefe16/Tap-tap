@@ -90,13 +90,20 @@
       display: none;
       z-index: 3;
     }
+
+    #lastScoreDisplay {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <div id="startScreen">
-    <h1>METEOR STRIKE</h1>
+    <h1>🚀 Asteroid Defense</h1>
     <input type="text" id="playerName" placeholder="İsminizi girin" />
     <button id="startButton">Başla</button>
+    <div id="lastScoreDisplay">Son Skor: 0</div>
   </div>
 
   <canvas id="gameCanvas"></canvas>
