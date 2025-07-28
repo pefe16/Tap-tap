@@ -7,82 +7,107 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="favicon.ico" />
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
+      height: 100%;
+      background: black;
     }
     canvas {
       display: block;
-      background: url('space-bg.jpg') no-repeat center center;
-      background-size: cover;
     }
-    #start-screen, #settings-panel {
+    #menu {
       position: absolute;
-      top: 50%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.85);
-      color: #fff;
-      padding: 20px;
-      border-radius: 10px;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 12px;
       text-align: center;
-      z-index: 10;
+      z-index: 5;
     }
-    #start-screen button, #settings-panel button {
+    #menu input {
+      padding: 10px;
       margin-top: 10px;
+      font-size: 16px;
+      width: 80%;
+    }
+    #menu button {
       padding: 10px 20px;
-      font-size: 18px;
+      margin-top: 15px;
       background-color: green;
       color: white;
+      font-size: 18px;
       border: none;
-      border-radius: 8px;
-    }
-    #settings-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: black;
-      color: lime;
-      padding: 8px 14px;
-      border: 2px solid lime;
-      border-radius: 10px;
-      font-size: 16px;
-      z-index: 9;
+      border-radius: 6px;
+      cursor: pointer;
     }
     #stats {
       position: absolute;
       top: 10px;
       left: 10px;
-      color: limegreen;
+      color: lime;
       font-size: 18px;
-      z-index: 5;
+      z-index: 2;
+      text-shadow: 1px 1px black;
     }
-    #settings-panel {
+    #settingsToggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 8px 12px;
+      background-color: black;
+      color: lime;
+      border: 2px solid lime;
+      border-radius: 8px;
+      font-size: 16px;
+      z-index: 3;
+      cursor: pointer;
+    }
+    #settingsPanel {
       display: none;
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px solid lime;
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 4;
+    }
+    #backToMenu {
+      display: block;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
 
-  <div id="start-screen">
+  <div id="menu">
     <h1>🚀 Asteroid Defense</h1>
-    <input type="text" id="player-name" placeholder="İsminizi girin" />
-    <br /><br />
+    <input type="text" id="playerName" placeholder="İsminizi girin" />
+    <br />
     <button onclick="startGame()">Oyunu Başlat</button>
   </div>
 
   <div id="stats">
-    ⭐ Skor: <span id="score">0</span><br />
-    🚀 Roket: <span id="rocket-type">Basic</span>
+    ⭐Skor: <span id="score">0</span><br />
+    🚀Roket: <span id="rocketType">Basic</span>
   </div>
 
-  <button id="settings-btn" onclick="toggleSettings()">⚙️ Ayarları Aç/Kapat</button>
+  <button id="settingsToggle">⚙️ Ayarları Aç/Kapat</button>
 
-  <div id="settings-panel">
-    <button onclick="togglePause()">⏸️ Durdur / Devam</button><br /><br />
-    <button onclick="location.reload()">🔙 Ana Menüye Dön</button>
+  <div id="settingsPanel">
+    <button id="backToMenu">Ana Menüye Dön</button>
   </div>
 
   <script src="main.js"></script>
