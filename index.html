@@ -2,110 +2,78 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Asteroid Defense</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json" />
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      background: black;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background-color: black;
-      touch-action: manipulation;
+      color: white;
     }
     #gameCanvas {
-      display: block;
+      display: none;
       width: 100vw;
       height: 100vh;
     }
-    #mainMenu, #settingsMenu {
+    #mainMenu, #settingsMenu, #restartButton {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       z-index: 2;
     }
-    #mainMenu h1 {
-      font-size: 2.5em;
-      color: white;
-    }
-    #mainMenu input {
-      padding: 10px;
-      font-size: 1em;
-      margin: 10px 0;
-    }
-    #mainMenu button, #settingsMenu button {
-      padding: 10px 20px;
-      font-size: 1.2em;
-      background-color: green;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      margin: 10px;
+    #mainMenu {
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
     }
     #settingsMenu {
-      background-color: rgba(0, 0, 0, 0.9);
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px;
       display: none;
-      z-index: 3;
     }
-    #settingsMenu button {
-      background-color: #444;
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #restartButton {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
     }
     #settingsButton {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 4;
-      background-color: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-    }
-    #stats {
-      position: absolute;
-      top: 50px;
-      left: 20px;
-      z-index: 4;
-      color: white;
-      font-size: 1.2em;
-      text-shadow: 1px 1px black;
-    }
-    #clock {
-      position: absolute;
       top: 10px;
-      left: 20px;
-      color: white;
-      font-size: 1.2em;
-      z-index: 4;
+      left: 10px;
+      z-index: 3;
+    }
+    #lastScoreDisplay {
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div id="mainMenu">
-    <h1>🚀 Asteroid Defense</h1>
-    <input type="text" id="playerNameInput" placeholder="Adınızı girin" />
-    <button onclick="startGame()">Başla</button>
-    <p id="lastScore" style="color:white;">Son Skor: 0</p>
+    <h1>Asteroid Defense</h1>
+    <button id="startButton">Başla</button>
+    <div id="lastScoreDisplay">Son Skor: 0</div>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
+  <canvas id="gameCanvas" width="480" height="640"></canvas>
 
   <div id="settingsMenu">
-    <h2 style="color:white;">Ayarlar</h2>
-    <button onclick="toggleSettings()">Ayarları Kapat</button>
+    <p>Ayarlar</p>
     <button onclick="goToMainMenu()">Ana Menüye Dön</button>
   </div>
 
-  <div id="clock">00:00 🌙</div>
-  <div id="stats">Skor: 0<br>Roket: Basic<br>Can: 5</div>
-  <button id="settingsButton" onclick="toggleSettings()">Ayarlar</button>
+  <button id="settingsButton" onclick="toggleSettings()">⚙️</button>
+  <button id="restartButton">Tekrar Oyna</button>
 
   <script src="main.js"></script>
 </body>
